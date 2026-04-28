@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ProSkill — Online Certification Platform (Dashboard)</title>
+  <!-- Tailwind Play CDN for quick styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Small custom tweaks */
+    .sidebar { min-width: 220px; }
+    .card-shadow { box-shadow: 0 6px 18px rgba(2,6,23,0.25); }
+    .scroll-smooth { scroll-behavior: smooth; }
+    /* make table rows hoverable */
+    tr:hover td { background: rgba(6,179,212,0.03); }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar bg-white border-r p-4 hidden md:block">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-md bg-gradient-to-br from-cyan-400 to-sky-600 flex items-center justify-center text-white font-bold">PS</div>
+        <div>
+          <h1 class="text-lg font-semibold">ProSkill</h1>
+          <p class="text-xs text-slate-500">Online Certifications</p>
+        </div>
+      </div>
+
+      <nav class="space-y-1 text-sm">
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/></svg>
+          <span>Overview</span>
+        </a>
+        <a href="#courses" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100"> 
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20l9-5-9-5-9 5 9 5z"/></svg>
+          <span>Courses</span>
+        </a>
+        <a href="#students" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100"> 
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A7 7 0 1118.879 6.196 7 7 0 015.12 17.804z"></path></svg>
+          <span>Students</span>
+        </a>
+        <a href="#reports" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"/></svg>
+          <span>Reports</span>
+        </a>
+        <a href="#settings" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100"> 
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 10c-3.3 0-6-2.7-6-6 0-.4 0-.8.1-1.2L4 10l2-1.2c.3-.2.6-.4 1-.6C8.2 8 9.1 8 10 8c3.3 0 6 2.7 6 6 0 .4 0 .8-.1 1.2L20 16l-2 1.2c-.3.2-.6.4-1 .6-.8.2-1.7.2-2.6.2z"/></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="mt-6 pt-4 border-t">
+        <button id="new-course" class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-cyan-500 text-white text-sm">+ New Course</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="flex-1 p-6">
+      <!-- Topbar -->
+      <header class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <button id="toggleBtn" class="md:hidden p-2 rounded-md bg-white border"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <div>
+            <h2 class="text-2xl font-semibold">Dashboard</h2>
+            <p class="text-sm text-slate-500">Welcome back — here's what's happening with your platform today.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <input id="search" type="search" placeholder="Search courses, students..." class="bg-white border rounded-full px-4 py-2 text-sm w-64" />
+            <button id="clearSearch" class="absolute right-1 top-1 text-slate-400 text-xs">Clear</button>
+          </div>
+          <div class="flex items-center gap-3">
+            <button class="p-2 rounded-md bg-white border" title="Notifications">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </button>
+            <div class="flex items-center gap-2">
+              <img src="https://api.dicebear.com/6.x/initials/svg?seed=PS" alt="avatar" class="w-9 h-9 rounded-full border" />
+              <div class="text-sm">
+                <div class="font-medium">Admin</div>
+                <div class="text-xs text-slate-500">proskill@platform.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Quick stats -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white p-4 rounded-lg card-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs text-slate-500">Total Students</div>
+              <div class="text-2xl font-semibold" id="totalStudents">1,248</div>
+            </div>
+            <div class="text-slate-400 text-sm">+7.2% MoM</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg card-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs text-slate-500">Active Courses</div>
+              <div class="text-2xl font-semibold" id="activeCourses">32</div>
+            </div>
+            <div class="text-slate-400 text-sm">Top: CS Fundamentals</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg card-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs text-slate-500">Certificates Issued</div>
+              <div class="text-2xl font-semibold" id="certs">6,430</div>
+            </div>
+            <div class="text-slate-400 text-sm">Year to date</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts and recent activity -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div class="lg:col-span-2 bg-white p-4 rounded-lg card-shadow">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold">Enrollment Trend</h3>
+            <div class="text-xs text-slate-500">Last 12 months</div>
+          </div>
+          <canvas id="enrollmentChart" height="120"></canvas>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg card-shadow">
+          <h3 class="font-semibold mb-3">Recent Activity</h3>
+          <ul class="space-y-3 text-sm text-slate-600">
+            <li><strong>Ria Patel</strong> completed "Frontend Basics" • 2h ago</li>
+            <li><strong>Course:</strong> "Data Structures" updated • 5h ago</li>
+            <li><strong>Vikram</strong> requested refund • 1d ago</li>
+            <li><strong>New hire:</strong> Instructor onboarding completed • 2d ago</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Courses table -->
+      <section id="courses" class="bg-white p-4 rounded-lg card-shadow mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold">Courses</h3>
+          <div class="text-sm text-slate-500">Showing 8 of 32 courses</div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="text-slate-500 text-left">
+              <tr>
+                <th class="p-3">Course</th>
+                <th class="p-3">Instructor</th>
+                <th class="p-3">Students</th>
+                <th class="p-3">Progress</th>
+                <th class="p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="coursesTable">
+              <!-- Rows inserted by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Footer / small widgets -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-lg card-shadow">
+          <h4 class="font-semibold mb-2">Top Instructors</h4>
+          <ol class="text-sm text-slate-600 list-decimal pl-5">
+            <li>Dr. A. Kumar — 1,248 students</li>
+            <li>Ria Patel — 842 students</li>
+            <li>Vikram Singh — 740 students</li>
+          </ol>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg card-shadow">
+          <h4 class="font-semibold mb-2">Platform Health</h4>
+          <div class="text-sm text-slate-600">Uptime: <strong>99.98%</strong></div>
+          <div class="text-sm text-slate-600 mt-2">Server load: <strong>0.42</strong></div>
+        </div>
+
+        <div id="settings" class="bg-white p-4 rounded-lg card-shadow">
+          <h4 class="font-semibold mb-2">Quick Settings</h4>
+          <label class="flex items-center gap-2 text-sm"><input type="checkbox" checked id="emailOn"/> Email notifications</label>
+          <label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" id="autoCert"/> Auto-issue certificates</label>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Responsive sidebar toggle
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    toggleBtn?.addEventListener('click', () => sidebar.classList.toggle('hidden'));
+
+    // Clear search
+    document.getElementById('clearSearch').addEventListener('click', () => {
+      document.getElementById('search').value = '';
+    });
+
+    // Sample courses data
+    const courses = [
+      { title: 'CS Fundamentals', instructor: 'Dr. A. Kumar', students: 412, progress: 78 },
+      { title: 'Frontend Basics', instructor: 'Ria Patel', students: 380, progress: 63 },
+      { title: 'Data Structures', instructor: 'Vikram Singh', students: 320, progress: 55 },
+      { title: 'Algorithms Advanced', instructor: 'Dr. A. Kumar', students: 249, progress: 42 },
+      { title: 'Database Design', instructor: 'Meera Joshi', students: 198, progress: 72 },
+      { title: 'Machine Learning', instructor: 'Sonal', students: 520, progress: 34 },
+      { title: 'DevOps Essentials', instructor: 'Raj', students: 160, progress: 49 },
+      { title: 'Cloud Fundamentals', instructor: 'Tanya', students: 210, progress: 58 }
+    ];
+
+    const tbody = document.getElementById('coursesTable');
+    courses.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="p-3 font-medium">${c.title}</td>
+        <td class="p-3 text-slate-600">${c.instructor}</td>
+        <td class="p-3">${c.students}</td>
+        <td class="p-3"><div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden"><div style="width:${c.progress}%" class="h-3 rounded-full bg-cyan-400"></div></div></td>
+        <td class="p-3 text-sm text-slate-600"><button class="px-2 py-1 rounded-md border mr-2">Edit</button><button class="px-2 py-1 rounded-md border">View</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Chart: Enrollment trend
+    const ctx = document.getElementById('enrollmentChart').getContext('2d');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const enrollments = [78,90,120,150,180,240,300,320,370,410,460,500];
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{
+          label: 'New enrollments',
+          data: enrollments,
+          tension: 0.3,
+          fill: true,
+          backgroundColor: 'rgba(6,179,212,0.08)',
+          borderColor: 'rgba(6,179,212,1)',
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    // Small interactions
+    document.getElementById('new-course').addEventListener('click', () => alert('Open course creation modal (stub)'));
+
+    // Toggle quick settings persistence (localStorage)
+    const emailOn = document.getElementById('emailOn');
+    emailOn.checked = localStorage.getItem('ps_email_on') === 'true' || emailOn.checked;
+    emailOn.addEventListener('change', () => localStorage.setItem('ps_email_on', emailOn.checked));
+
+    const autoCert = document.getElementById('autoCert');
+    autoCert.checked = localStorage.getItem('ps_auto_cert') === 'true';
+    autoCert.addEventListener('change', () => localStorage.setItem('ps_auto_cert', autoCert.checked));
+
+    // Make dashboard keyboard accessible: press '/' to focus search
+    window.addEventListener('keydown', (e) => { if (e.key === '/') { e.preventDefault(); document.getElementById('search').focus(); } });
+  </script>
+</body>
+</html>
